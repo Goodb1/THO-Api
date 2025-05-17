@@ -38,7 +38,6 @@ let blacklist = readBlacklist();
 function filterExpiredBans() {
   const now = new Date();
   const newList = blacklist.filter(entry => {
-
     if (entry.expiresAt) {
       const expiry = new Date(entry.expiresAt);
       return expiry > now;
@@ -57,17 +56,21 @@ app.get('/blacklist', (req, res) => {
 });
 
 app.post('/blacklist', (req, res) => {
-  const { username, userId, reason, duration, expiresAt, bannedBy } = req.body;
-  if (!username && !userId) {
-    return res.status(400).json({ error: "Fornisci almeno 'username' o 'userId'." });
+  // Expect both "roblox_username" and "discord_username"
+  const { roblox_username, discord_username, reason, duration, expiresAt, bannedBy } = req.body;
+  if (!roblox_username && !discord_username) {
+    return res.status(400).json({ error: "Fornisci almeno 'roblox_username' o 'discord_username'." });
   }
-  const exists = blacklist.find(entry => (username && entry.username === username) || (userId && entry.userId == userId));
+  const exists = blacklist.find(entry =>
+    (roblox_username && entry.roblox_username === roblox_username) ||
+    (discord_username && entry.discord_username === discord_username)
+  );
   if (exists) {
     return res.status(400).json({ error: "User is already blacklisted." });
   }
   const newEntry = {
-    username: username || null,
-    userId: userId || null,
+    roblox_username: roblox_username || null,
+    discord_username: discord_username || null,
     reason: reason || "",
     duration: duration || "permanent",
     expiresAt: expiresAt || null,
@@ -80,12 +83,15 @@ app.post('/blacklist', (req, res) => {
 });
 
 app.delete('/blacklist', (req, res) => {
-  const { username, userId } = req.body;
-  if (!username && !userId) {
-    return res.status(400).json({ error: "Fornisci almeno 'username' o 'userId'." });
+  const { roblox_username, discord_username } = req.body;
+  if (!roblox_username && !discord_username) {
+    return res.status(400).json({ error: "Fornisci almeno 'roblox_username' o 'discord_username'." });
   }
   const initialLength = blacklist.length;
-  blacklist = blacklist.filter(entry => !((username && entry.username === username) || (userId && entry.userId == userId)));
+  blacklist = blacklist.filter(entry => {
+    return !((roblox_username && entry.roblox_username === roblox_username) ||
+             (discord_username && entry.discord_username === discord_username));
+  });
   if (blacklist.length === initialLength) {
     return res.status(404).json({ error: "Utente non trovato nella blacklist." });
   }
