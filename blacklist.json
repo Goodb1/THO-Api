@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "roblox_username": "Netsu_07",
+    "discord_username": null,
+    "reason": "Testing ban flow",
+    "duration": "1 hour",
+    "expiresAt": "2025-07-01T13:00:00.000Z",
+    "bannedBy": "Admin",
+    "addedAt": "2025-07-01T12:30:00.000Z"
+  }
+]
